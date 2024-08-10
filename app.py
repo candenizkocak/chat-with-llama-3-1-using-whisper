@@ -8,10 +8,6 @@ client = Groq(api_key=api_key)
 if not api_key:
     raise ValueError("API key not found. Please set the GROQ_API_KEY environment variable.")
 
-#client = Groq(api_key=api_key)
-
-chat_history = []
-
 def transcribe_audio(file_path):
     with open(file_path, "rb") as file:
         transcription = client.audio.transcriptions.create(
@@ -42,8 +38,7 @@ def get_chat_completion(prompt):
         response += chunk.choices[0].delta.content or ""
     return response
 
-def process_input(audio_file, text_input):
-    global chat_history
+def process_input(audio_file, text_input, chat_history):
     if audio_file is not None:
         transcription_text = transcribe_audio(audio_file)
     else:
@@ -55,22 +50,25 @@ def process_input(audio_file, text_input):
 
     formatted_history = "\n".join([f"{role}: {content}\n" for role, content in chat_history])
 
-    return formatted_history, gr.update(value=None), gr.update(value='')
+    return formatted_history, gr.update(value=None), gr.update(value=''), chat_history
 
 # Create Gradio interface
 interface = gr.Interface(
     fn=process_input,
     inputs=[
         gr.Audio(type="filepath", label="Upload Audio or Record"),
-        gr.Textbox(lines=2, placeholder="Or type text here", label="Text Input")
+        gr.Textbox(lines=2, placeholder="Or type text here", label="Text Input"),
+        gr.State([])
     ],
     outputs=[
         gr.Textbox(label="Chat History", lines=20),
-        gr.Audio(visible=False),  # Hidden output to reset audio input
-        gr.Textbox(visible=False)  # Hidden output to reset text input
+        gr.Audio(visible=False),
+        gr.Textbox(visible=False),
+        gr.State()
     ],
     title="Chat with Llama 3.1-8B With Text or Voice (Whisper Large-v3)",
-    description="Upload an audio file or type text to get a chat response based on the transcription."
+    description="Upload an audio file or type text to get a chat response based on the transcription.",
+    allow_flagging='never'  # Prevent flagging to isolate sessions
 )
 
 if __name__ == "__main__":
