@@ -38,7 +38,3 @@ Contributions are welcome! To contribute, follow these steps:
 1.  Fork the repository:  `git fork https://github.com/candenizkocak/chat-with-llama-3-1-using-whisper.git`
 2.  Make changes and commit:  `git commit -m "commit message"`
 3.  Create a pull request:  `git pull-request`
-
-## **License**
-
-This repository is licensed under the MIT License. See  [LICENSE](a)  for details.
